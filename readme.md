@@ -1,4 +1,4 @@
-# ¿Que es freetour?
+# ¿Que es AudioTours?
 
 Convierte tu teléfono móvil en una guía turística para que te lea en voz alta los aspectos más interesantes del lugar o la zona donde estés.
 
@@ -6,13 +6,19 @@ Turn your mobile phone into a tourist guide to read aloud the most interesting a
 
 La aplicación consta de 3 partes:
 
-Backend php+html+css+javascript
+Backend php+frontEnd html+css+javascript=<a href="https://audiotours.es">audiotours.es</a>
 
 frontend android > 6.0 
 
 Frontend iphone > 9
 
 # Comunicación
+
+Email: <a href="email:adm@audiotours.es">adm@audiotours.es</a>
+
+Telegram: <a href="https://t.me/+6S_Marm6-eo2OTk0">Telegram channel</a>
+
+Slack channel: <a href="https://audiotours-friends.slack.com">Slack audio tour</a>
 
 
 
