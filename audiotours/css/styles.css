@@ -1,0 +1,143 @@
+/*
+generador de código css: https://html-css-js.com/css/generator/border-outline/
+*/
+/*
+Fijate en la propiedad flex-wrap, por defecto está en no wrap y amontona los hijos, con wrap salta si llega al final
+*/
+a {
+    text-decoration: none;
+}
+
+  
+/*
+a:hover {
+    color: red;
+}
+a:visited {
+    color: white;
+}
+a:active {
+color: yellow;
+}
+*/
+.flex-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+
+}
+.background-pink {
+    background: #FF98E8;
+    background: -moz-linear-gradient(left, #FF98E8 0%, #f5d6d6 60%, #FF98E8 100%);
+    background: -webkit-linear-gradient(left, #FF98E8 0%, #f5d6d6 60%, #FF98E8 100%);
+    background: linear-gradient(to right, #FF98E8 0%, #f5d6d6 60%, #FF98E8 100%);
+    padding: 20px;
+    border-radius: 30px;
+
+}
+.banckground-yellow {
+    background: #E6E562;
+    background: -moz-linear-gradient(left, #E6E562 0%, #ffcc95 50%, #E6E562 100%);
+    background: -webkit-linear-gradient(left, #E6E562 0%, #ffcc95 50%, #E6E562 100%);
+    background: linear-gradient(to right, #E6E562 0%, #ffcc95 50%, #E6E562 100%);
+    padding: 20px;
+    border-radius: 30px;
+}
+.background-blue {
+    background: #18B1CE;
+    background: -moz-linear-gradient(left, #18B1CE 0%, #4CFFFA 50%, #FFEFFB 100%);
+    background: -webkit-linear-gradient(left, #18B1CE 0%, #4CFFFA 50%, #FFEFFB 100%);
+    background: linear-gradient(to right, #18B1CE 0%, #4CFFFA 50%, #FFEFFB 100%);
+}
+.loginForm{
+    background: #18B1CE;
+    background: -moz-linear-gradient(left, #18B1CE 0%, #4CFFFA 50%, #18B1CE 100%);
+    background: -webkit-linear-gradient(left, #18B1CE 0%, #4CFFFA 50%, #18B1CE 100%);
+    background: linear-gradient(to right, #18B1CE 0%, #4CFFFA 50%, #18B1CE 100%);
+    border-radius: 30px;
+}
+.border{
+    border: 1px solid #000;
+}
+select {
+    padding:5px;
+    border: 1px solid black;
+ }
+
+.mueble {
+    background-color: #fee3a3;
+}
+.balda {
+    height: 5px;
+    background-color: #ce9000;
+}
+
+.foto-amigos {
+    background: url(../media/amigos.png) no-repeat center center fixed; 
+}
+
+
+.color-azul{
+    background-color: rgb(202, 238, 238);
+}
+
+.max-height300 {
+    max-height: 300px;
+}
+.show-picture {
+    margin: 10px;
+    border: black;
+    background-color: rgb(156, 224, 246);
+    text-align: center;
+    border-radius: 30px;
+}
+
+
+
+.button-input {
+    border: 1px solid #ccc;
+    display: inline-block;
+    padding: 20px;
+    cursor: pointer;
+}
+
+.map-control {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 2px rgba(33, 33, 33, 0.4);
+    font-family: "Roboto", "sans-serif";
+    margin: 10px;
+    padding-right: 5px;
+    /* Hide the control initially, to prevent it from appearing
+             before the map loads. */
+    /*display: none;*/
+  }
+  
+  /* Display the control once it is inside the map. */
+  #map .map-control {
+    display: block;
+  }
+  
+  .selector-control {
+    font-size: 32px;
+    line-height: 30px;
+    vertical-align: baseline;
+  }
+  
+/**
+A partir de 576 de mínimo mostrará la imagen grande de fondo
+*/
+@media (min-width: 576px) {
+    .background-home{
+        width: 800px;
+        height: 600px;
+        background: url(../media/background.png) no-repeat; 
+    }
+}
+@media (max-width: 576px) {
+    .background-home{
+        width: 300px;
+        height: 400px;
+        background: url(../media/backgroundSmall.png) no-repeat; 
+    }
+}
