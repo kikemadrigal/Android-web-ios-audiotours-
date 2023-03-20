@@ -88,13 +88,14 @@ class MediaController extends BaseController{
         $this->view->render("media/insertForm");    
     }
 
-    public function updateFormImage($media=null){
-        $media=MediaRepository::getImage($media[0]);
+    public function updateFormImage($image=null){
+        $media=MediaRepository::getImage($image[0]);
         $this->view->media=$media;
         $this->view->render("media/update");
+        //echo "vamos a  ver la imagen ".$image[0];
     }
-    public function updateFormAudio($media=null){
-        $media=MediaRepository::getAudio($media[0]);
+    public function updateFormAudio($audio=null){
+        $media=MediaRepository::getAudio($audio[0]);
         $this->view->media=$media;
         $this->view->render("media/update");
     }

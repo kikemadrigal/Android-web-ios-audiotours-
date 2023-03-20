@@ -1,7 +1,7 @@
 <?php include_once("./views/templates/document-start.php");?>
 
 
-<script src="<?php echo PATHJS; ?>restAPI.js"></script>
+
 
 
 <?php

@@ -36,7 +36,7 @@ echo "<br><a href='".PATHSERVER."Media/insertForm' class='btn btn-success m-4'>I
 					if ($image->getId()!=1){	
 						echo "<tr>";
 							echo "<td>";
-								if(PRODUCTION==1) echo "<a href='".PATHSERVERSININDEX."Media/updateFormImage/".$image->getId()."'>";
+								if(PRODUCTION==1) echo "<a href='".PATHSERVER."Media/updateFormImage/".$image->getId()."'>";
 								else echo "<a href='".PATHSERVER."Media/updateFormImage/".$image->getId()."'>";
 									if(PRODUCTION==1)$imageFile=PATHSERVERSININDEX.$image->getPath()."/".$image->getName();
 									else $imageFile=PATHSERVER.$image->getPath()."/".$image->getName();
@@ -83,7 +83,7 @@ echo "<br><a href='".PATHSERVER."Media/insertForm' class='btn btn-success m-4'>I
 						if ($audio->getId()!=1){	
 							echo "<tr>";
 								echo "<td>";
-								if(PRODUCTION==1) echo "<a href='".PATHSERVERSININDEX."Media/updateFormAudio/".$audio->getId()."'>";
+								if(PRODUCTION==1) echo "<a href='".PATHSERVER."Media/updateFormAudio/".$audio->getId()."'>";
 								else echo "<a href='".PATHSERVER."Media/updateFormAudio/".$audio->getId()."'>Update   ";
 										if(PRODUCTION==1)$audioFile=PATHSERVERSININDEX.$audio->getPath()."/".$audio->getName();
 										else $audioFile=PATHSERVER.$audio->getPath()."/".$audio->getName();

@@ -104,7 +104,7 @@
   </tbody>
 </table>
 
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDFgSpcBibpRLAtMIX68M_DnUyrHQr2VnY&libraries=places&callback=initMap"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=<?php echo KEYMAP; ?>&libraries=places&callback=initMap"></script>
 
 <!--Este es un componente modal de boostrap 5: https://getbootstrap.com/docs/5.0/components/modal/
 Solo es clicable si se asocia a través de javascript con un evento on click -->

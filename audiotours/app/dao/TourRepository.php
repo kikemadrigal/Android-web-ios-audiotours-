@@ -150,7 +150,33 @@ class TourRepository{
 		$basededatos->desconectar();
 		return $distance;
     }
-
+	public static function getAllByName($name){
+		$tours=array();
+		$basededatos= new MysqliClient();
+		$basededatos->conectar_mysql();
+		$consulta  = "SELECT id, name, X(coordinates) as latitude, Y(coordinates) as longitude ,type,media, image, address, phone, web, blogUrl, description, date, userId FROM tours WHERE name like '%".$name."%'";
+		$resultado=$basededatos->ejecutar_sql($consulta);
+		while ($linea = mysqli_fetch_array($resultado)) 
+		{
+			$tour=new Tour($linea['id']);
+			$tour->setName($linea['name']);
+			$tour->setLatitude($linea['latitude']);
+			$tour->setLongitude($linea['longitude']);
+			$tour->setType($linea['type']);
+			$tour->setMedia($linea['media']);
+			$tour->setImage($linea['image']);
+			$tour->setBlogUrl($linea['blogUrl']);
+			$tour->setAddress($linea['address']);
+			$tour->setPhone($linea['phone']);
+			$tour->setWeb($linea['web']);
+			$tour->setDescription($linea['description']);
+			$tour->setDate($linea['date']);
+			$tour->setUserId($linea['userId']);
+			$tours[]=$tour;
+		}
+		$basededatos->desconectar();
+		return $tours;
+	}
 
 	/*
 	INSERT INTO gamesUsers VALUES ( '', 'title', 'Cove', 'Instructions', 'Country()', 'Publisher', 'Developer', 'Year', 'Format', 'Genre', 'System', 'Programming', 'Sound', 'Control', '1', 'Languages', '1', '1', '1', '1', '1', '0' , 'Observations', '186');
@@ -180,6 +206,20 @@ class TourRepository{
         }
 		//update tours set name='un name', coordinates= POINT('37.98418328904296', '-1.133493423950421'), latitude='0', longitude='0', type='0', image='0', media='0', blogUrl='0', description='una descripcion', date='', userId='1' WHERE id='6';
 		$sql="update tours set name='".$tour->getName()."', coordinates= POINT('".$tour->getLatitude()."', '".$tour->getLongitude()."'), latitude='".$tour->getLatitude()."', longitude='".$tour->getLongitude()."', type='".$tour->getType()."', media='".$tour->getMedia()."', image='".$tour->getImage()."', blogUrl='".$tour->getBlogUrl()."', address='".$tour->getAddress()."', phone='".$tour->getPhone()."', web='".$tour->getWeb()."', description='".$tour->getDescription()."', date='".$tour->getdate()."', userId='".$tour->getUserId()."' WHERE id='".$tour->getId()."'";
+		//echo "update tours set name='".$tour->getName()."', coordinates= POINT('".$tour->getLatitude()."', '".$tour->getLongitude()."'), latitude='".$tour->getLatitude()."', longitude='".$tour->getLongitude()."', type='".$tour->getType()."', media='".$tour->getMedia()."', image='".$tour->getImage()."', blogUrl='".$tour->getBlogUrl()."', description='".$tour->getDescription()."', date='".$tour->getdate()."', userId='".$tour->getUserId()."' WHERE id='".$tour->getId()."'";
+		$success=$bd->ejecutar_sql($sql);
+        $bd->desconectar();
+		return $success;
+    }
+	public static function updateUrlBlog($blogUrl, $id){
+        $bd= new MysqliClient();
+        $bd->conectar_mysql();
+        if (!$bd->checkExitsToursTable()){
+            echo "Tours table not exists";
+            die();
+        }
+		//update tours set name='un name', coordinates= POINT('37.98418328904296', '-1.133493423950421'), latitude='0', longitude='0', type='0', image='0', media='0', blogUrl='0', description='una descripcion', date='', userId='1' WHERE id='6';
+		$sql="update tours set blogUrl='".$blogUrl."' WHERE id='".$id."'";
 		//echo "update tours set name='".$tour->getName()."', coordinates= POINT('".$tour->getLatitude()."', '".$tour->getLongitude()."'), latitude='".$tour->getLatitude()."', longitude='".$tour->getLongitude()."', type='".$tour->getType()."', media='".$tour->getMedia()."', image='".$tour->getImage()."', blogUrl='".$tour->getBlogUrl()."', description='".$tour->getDescription()."', date='".$tour->getdate()."', userId='".$tour->getUserId()."' WHERE id='".$tour->getId()."'";
 		$success=$bd->ejecutar_sql($sql);
         $bd->desconectar();

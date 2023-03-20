@@ -21,5 +21,8 @@ class AdmController extends BaseController{
     public function license(){
         $this->view->render("adm/license");
     }
-
+    public function test(){
+        $this->view->render("adm/test");
+    }
+    
 }

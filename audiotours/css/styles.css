@@ -64,13 +64,7 @@ select {
     border: 1px solid black;
  }
 
-.mueble {
-    background-color: #fee3a3;
-}
-.balda {
-    height: 5px;
-    background-color: #ce9000;
-}
+
 
 .foto-amigos {
     background: url(../media/amigos.png) no-repeat center center fixed; 
@@ -85,13 +79,23 @@ select {
     max-height: 300px;
 }
 .show-picture {
-    margin: 10px;
+    height: 220px;
+    max-width: 220px;
+    margin: 2px;
+    padding: 10px;
     border: black;
     background-color: rgb(156, 224, 246);
     text-align: center;
     border-radius: 30px;
 }
-
+.infoWindow{
+    height: 200px;
+    max-width: 200px;
+    margin: 2px;
+    border: black;
+    text-align: center;
+    border-radius: 3px;
+}
 
 
 .button-input {
@@ -111,18 +115,25 @@ select {
     /* Hide the control initially, to prevent it from appearing
              before the map loads. */
     /*display: none;*/
-  }
+}
   
-  /* Display the control once it is inside the map. */
-  #map .map-control {
+/* Display the control once it is inside the map. */
+#map .map-control {
     display: block;
-  }
-  
-  .selector-control {
+}
+
+.selector-control {
     font-size: 32px;
     line-height: 30px;
     vertical-align: baseline;
-  }
+}
+
+.form-check {
+    width: 1em;
+    height: 1em;
+    vertical-align: top;
+
+}
   
 /**
 A partir de 576 de mínimo mostrará la imagen grande de fondo

@@ -19,7 +19,6 @@ const PATHSERVER="https://audiotours.es/";
 //Variables globales
 let map;
 let marker;
-let cartelPosicion;
 let directionService;
 let directionDisplay;
 let servicePlace;
@@ -29,7 +28,8 @@ let geoLoc;
 let latitud;
 let longitud;
 let posMadrid={lat:40.41651308290394, lng:-3.6785247648211117};
-
+let seguimiento=true;
+var primeraVezSolicitaTour=true;
 
 const styles = {
     default: [],
@@ -65,13 +65,13 @@ function initMap() {
         map: map,
         icon: image
     });
-
+    getPosition();
     /**
      * Estilos en mapa: https://developers.google.com/maps/documentation/javascript/examples/hiding-features
      */
      // Add controls to the map, allowing users to hide/show features.
     const styleControl = document.getElementById("style-selector-control");
-    map.controls[google.maps.ControlPosition.TOP_LEFT].push(styleControl);
+    //map.controls[google.maps.ControlPosition.TOP_LEFT].push(styleControl);
     // Apply new JSON when the user chooses to hide/show features.
     document.getElementById("hide-poi").addEventListener("click", () => {
       map.setOptions({ styles: styles["hide"] });
@@ -81,14 +81,14 @@ function initMap() {
     });
 
     
-    cartelPosicion = new google.maps.InfoWindow();
-    getPosition();
+
+
 
 
     /**
      * Directions
      */
-  
+  //https://developers.google.com/maps/documentation/javascript/directions?_gl=1*1wd2g39*_ga*MTM2MDgxMDYwMC4xNjc4NzQyMTM4*_ga_NRWSTWS78N*MTY3OTExOTExNS4xMi4xLjE2NzkxMjI5NjIuMC4wLjA.&hl=es-419
     directionService=new google.maps.DirectionsService();
     directionDisplay=new google.maps.DirectionsRenderer();
     directionDisplay.setMap(map);
@@ -109,7 +109,9 @@ function initMap() {
     var buttonDirections=document.getElementById("btnDirections");
     buttonDirections.addEventListener("click", function(){
         if(input1.value.length!=0 && input2.value.length!=0){
-            calcRoute();
+            var valueFrom=document.getElementById("from").value;
+            var valueTo=document.getElementById("to").value;
+            calcRoute(valueFrom,valueTo);
         }else{
             console.log("algun campo esta vacio");
         }
@@ -121,8 +123,8 @@ function initMap() {
     //var inputPlaces=document.getElementById("textPlaces");
     //var autoComplete3= new google.maps.places.Autocomplete(inputPlaces, options);
     //servicePlace = new google.maps.places.PlacesService(map);
-    var buttonPlaces=document.getElementById("btnPlaces");
-    buttonPlaces.addEventListener("click", function(){
+    //var buttonPlaces=document.getElementById("btnPlaces");
+    //buttonPlaces.addEventListener("click", function(){
 
         //if(inputPlaces.value.length!=0){
             //getPlaces();
@@ -130,25 +132,113 @@ function initMap() {
         //}else{
            // console.log("algun campo esta vacio");
         //}
+    //});
+
+
+
+    
+    /**
+     * Segumiento
+     */
+    var miCheckbox = document.getElementById('enableTrackingCheckBox');
+    var msg = document.getElementById('output');
+    miCheckbox.addEventListener('click', function() {
+    if(!miCheckbox.checked) {
+        msg.innerText = 'El seguimiento está desactivado';
+        msg.classList.add("bg-warning");
+        seguimiento=false;
+    } else {
+        msg.innerText = '';
+        msg.classList.remove("bg-warning");
+        seguimiento=true;
+    }
     });
 
-    events();
-    cargarTours(200);
+    /**
+     * Si se presiona el botón se muestra las opciones de configuraión SE OCULTA O MUESTRA EL DIV DE CONFIGURACIÓN
+     */
+    var divShowCoordinates = document.getElementById('showCoordinates');
+    divShowCoordinates.style.display = "inline";
+    var btnConfigration = document.getElementById('btnConfigurationMap');
+    var panelConfiguration = document.getElementById('configurationMapHideShow');
+    panelConfiguration.style.display = "none";
+    btnConfigration.addEventListener('click', function() {
+        if (panelConfiguration.style.display === "none") {
+            panelConfiguration.style.display = "block";
+            btnConfigration.innerHTML="-";
+        } else {
+            panelConfiguration.style.display = "none";
+            btnConfigration.innerHTML="+";
+        }
+    });
+
+
+
+
+    /**
+     * Actualización peticiones tours
+     */
+    //
+    var selectInterval = document.getElementById("selectInterval");
+    setInterval(intervalLoadTours,10000);
+    var intervalID=0;
+    selectInterval.addEventListener("change", function() {
+        var valueSelectInterval = selectInterval.value;
+        //console.log("Cambiado item interval a "+valueSelectInterval);
+        clearInterval(intervalID);
+        intervalID = setInterval(intervalLoadTours,valueSelectInterval);
+    });
+
+
+
+
+    /**
+     * Obtenemos todos los tours y dividimos entre 10 para la paginación
+     */
+    let urlCountTours=PATHSERVER+"api/getCountAllTours.php";
+    fetch(urlCountTours)
+    .then(response=>response.json())
+    .then(data=>{
+        console.log("data obtenida "+data);
+        let pages=data/10;
+        //let lastPages=data-pages*10;
+        let number=0;
+        var content="<nav aria-label='Page navigation example'><ul class='pagination'>";
+        content+="<li class='page-item' onclick='cargarTours(0, "+latitud+", "+longitud+")' ><a class='page-link' href='#'>First</a></li>";
+        for(var i=0; i<data;i+=10){
+            //api/getAllTours.php?page="+page+"&lat="+latitud+"&lng="+longitud
+            content+="<li class='page-item' onclick='cargarTours("+number+", "+latitud+", "+longitud+")'><a class='page-link' href='#'>"+number+"</a></li>"; 
+            number++;
+        }    
+        content+="<li class='page-item'  onclick='cargarTours("+pages+", "+latitud+", "+longitud+")' ><a class='page-link' href='#'>Last</a></li>";
+        content+="</ul></nav>";
+        document.getElementById("divPagination").innerHTML=content;
+    })
+    .catch (error=>console.log(error));
+    
+}
+
+function intervalLoadTours(){
+    //console.log("Cargado con interval");
+    //cargarTours(página_actual, latitud, longitud)
+    if(seguimiento)cargarTours(0, latitud, longitud);
 }
 
 
 function getPosition(){
     if (navigator.geolocation) {
         //Ejecuta cada 60000 milisegundos (60 segundos, 1 minuto)
-        var options={timeout:60000}
+        // 300000 -5 segundos
+        //3600000 - 60 segundos
+        var options={timeout:300000}
         geoLoc=navigator.geolocation;
-        console.log("obtenida geolocalizacion: "+geoLoc);
+        //console.log("obtenida geolocalizacion: "+geoLoc);
         //Con wachPosition vigilamos constantemente la localización
         watchID=geoLoc.watchPosition(showLocationOnMap, errorHandler, options);
     }else{
         const outPut=document.querySelector('#output');
         outPut.innerHTML="<div class='alert-info'>No es posible acceder su localización</div>";
-        console.log("No se obtuvo geolocalizacion");
+        //console.log("No se obtuvo geolocalizacion");
     }
 }
 
@@ -156,11 +246,15 @@ function getPosition(){
 function showLocationOnMap(position){
     latitud=position.coords.latitude;
     longitud=position.coords.longitude;
-    console.log("laitutd "+latitud+", longitud "+longitud);
+    //console.log("laitutd "+latitud+", longitud "+longitud);
     //Le seteamos al marker y al mapa la posición nueva
     myLatLng={lat: latitud, lng: longitud};
     marker.setPosition(myLatLng);
     map.setCenter(myLatLng);
+    if(primeraVezSolicitaTour) {
+        intervalLoadTours();
+        primeraVezSolicitaTour=false;
+    }
     document.getElementById("showCoordinates").innerHTML=latitud+", "+longitud;
 }
 
@@ -182,12 +276,33 @@ function errorHandler(err){
 
 
 
-function calcRoute(){
+function calcRoute(valueFrom, valueTo){
+    //console.log("recibido: de "+valueFrom+" a: "+valueTo);
     //WALKING , BYCLYCLING AND TRANSIST
+    var selectDirections = document.getElementById("selectDirections");
+    //eSTO DARÁ 
+    var valueSelectDirections = selectDirections.value;
+    //var textSelectDirections = selectDirections.options[selectDirections.selectedIndex].text;
+    var googleTravelMode=google.maps.TravelMode.WALKING;
+    switch(valueSelectDirections){
+        case "DRIVING":
+            googleTravelMode=google.maps.TravelMode.DRIVING;
+        break;
+        case "BYCYCLING":
+            googleTravelMode=google.maps.TravelMode.BICYCLING;
+        break;
+        case "TRANSIT":
+            googleTravelMode=google.maps.TravelMode.TRANSIT;
+        break;
+        case "WALKING":
+            googleTravelMode=google.maps.TravelMode.WALKING;
+        break;
+    }
+    //destination: El ID del lugar, la dirección o el valor textual de latitud/longitud hacia el que desea calcular las direcciones. Las opciones para el parámetro de destino son las mismas que para el parámetro de origen.
     var request= {
-        origin: document.getElementById("from").value,
-        destination: document.getElementById("to").value,
-        travelMode: google.maps.TravelMode.WALKING, 
+        origin: valueFrom,
+        destination: valueTo,
+        travelMode: googleTravelMode, 
         unitSystem: google.maps.UnitSystem.IMPERIAL
     }
 
@@ -286,100 +401,77 @@ function getRestaurants(){
 }
 
 
-var events=function(){
-    /*
-    google.maps.event.addListener(map, "click", function(evento) {
-        
-        console.log("Click en mapa, coordenadas "+latitud+", "+longitud);
-       
-		lat = evento.latLng.lat();
-		lng = evento.latLng.lng();
-		document.getElementById("showCoordinates").innerHTML=lat+", "+lng;
-        myLatLng={lat: lat, lng: lng};
-        map.setCenter(myLatLng);
-        
-	});
-    */
-    /*
-    google.maps.event.addListener(map, "mousemove", function(evento) {
-        lat = evento.latLng.lat();
-       lng = evento.latLng.lng();
-       if(lat!=null && lng!=null){
-           document.getElementById("showCoordinates").innerHTML =lat+", "+lng;	
-       }
-   });
-   */
-   /*
-    google.maps.event.addListener(map, "center_changed", function(evento) {
-        
-        console.log("mapa cambiado, coordenadas "+latitud+", "+longitud);
-       
-        lat = evento.latLng.lat();
-        lng = evento.latLng.lng();
-
-        if(lat!=null && lng!=null){
-            document.getElementById("showCoordinates").innerHTML =lat+", "+lng;	
-        }
-       
-    });
-     */
-}
 
 
-var cargarTours=function (maxMarkers){
-    console.log("nueva petición");
-    let url=PATHSERVER+"api/getAllTours.php?maxMarkers="+maxMarkers+"&lat="+latitud+"&lng="+longitud;
+
+var cargarTours=function (page, latitud, longitud){
+    //console.log("nueva petición");
+    let url=PATHSERVER+"api/getAllTours.php?page="+page+"&lat="+latitud+"&lng="+longitud;
     const container=document.querySelector('#container-cards');
-    container.innerHTML="";
-    count=0;
+    
+    countImage=0;
+    countAudio=0;
+    countDistance=0;
     fetch(url)
         .then(response=>response.json())
         .then(markers=>{
+            var markersArray=new Array();
+            container.innerHTML="";
             var infoWindow = new google.maps.InfoWindow();
 			for (var i = 0; i < markers.length; i++) {
 				var data = markers[i];
-				//console.log(data.name);
+				//console.log(data.distance);
 				var myLatlng = new google.maps.LatLng(data.latitude, data.longitude);
-				var image = "http://audiotours.es/media/audiotourflag64px.png";
+				var image = PATHSERVER+"media/audiotourflag64px.png";
 				var marker = new google.maps.Marker({
 					position: myLatlng,
 					label: data.name,
 					map: map,
-					title: data.description,
+					title: data.description.substring(0,10),
 					animation: google.maps.Animation.DROP,
 					icon: image
 				});
-                container.innerHTML+="<div class='col-md-3 text-center' ><div class='card p-2'>"+data.name+"<br/><div id='image-cards"+i+"' name='image-cards"+i+"' ></div><br/>Media: "+data.media+"<br/>Distance: "+data.distance+" m. - "+data.distance/1000+" km.";
-               
-               //Obtenemos la imagen
-                let urlImage=PATHSERVER+"api/getImage.php?id="+data.image;
+                //Cremoa una venatana de información por cada marker
+                markersArray.push(marker);
+				(function (marker, data) {
+					google.maps.event.addListener(marker, "click", function (e) {
+						const contentString =
+                            '<div class="infoWindow">' +
+                            "<strong>"+data.name+"</strong>"+
+                            "<a href='"+PATHSERVER+"index/Tour/show/"+data.id+"'><img src='"+PATHSERVER+data.pathImage+"/"+data.nameImage+"' width='180' /></a>"+
+                            "<p>"+data.description.substring(0,100)+"...<p>"+
+                            "</div>";
+						infoWindow.setContent(contentString);
+						infoWindow.open(map, marker);
+					});
+				})(marker, data);
 
-                fetch(urlImage)
-                    .then(response=>response.json())
-                    .then(image=>{
-                        
-                        console.log(image.name+", "+image.path);
-                        idCards="image-cards"+count;
-                        count++;
-                        const containerImage=document.getElementById(idCards);
-                        containerImage.innerHTML+="<img src='"+PATHSERVER+image.path+"/"+image.name+"'  height='200px' />";
-                    });
-
+                /*var textShowCoordinates=document.getElementById("showCoordinates").innerHTML;
+                var positionPlayer=null;
+                if(textShowCoordinates!=null){
+                    let arrayCoodenates = textShowCoordinates.split(',');
+                    
+                    var latitude=arrayCoodenates[0];
+                    var longitude=arrayCoodenates[1];
+                    //positionPlayer = new google.maps.LatLng(latitude, longitude);
+                    positionPlayer ={lat: latitude, lng: longitude};
+                    console.log("player "+positionPlayer.lat);
+                }else{
+                    console.log("texcoordinaates es null"); 
+                }*/
+                //console.log("address "+data.address);
+                //positionPlayer = new google.maps.LatLng(37.969436430231,-1.199436714461175);
+              
                 
-                container.innerHTML+="</div></div>";
+                const distance=data.distance;
+                //container.innerHTML+="<div class='col-md-3 text-center'><div class='card p-2'>"+data.name+"<br /><a href='"+PATHSERVER+"index/Tour/show/"+data.id+"'><img src='"+PATHSERVER+data.pathImage+"/"+data.nameImage+"'  height='200px' /><br/> Distance: "+distance+"<br /><audio src='"+PATHSERVER+data.pathAudio+"/"+data.nameAudio+"' controls  /></a></div></div>";
+                //container.innerHTML+="<div class='col-md-3 text-center'><div class='card p-2'>"+data.name+"<br /><a href='"+PATHSERVER+"index/Tour/show/"+data.id+"'><img src='"+PATHSERVER+data.pathImage+"/"+data.nameImage+"' class='show-picture' /><br/> Distance: "+distance+"</a><button class='btn btn-outline-primary btn-sm px-50' onClick='calcRoute("+data.address+","+myLatlng+")'>Go!</button></div></div>";
+                container.innerHTML+="<div class='col-md-3 text-center'><div class='card p-2'>"+data.name+"<br /><a href='"+PATHSERVER+"index/Tour/show/"+data.id+"'><img src='"+PATHSERVER+data.pathImage+"/"+data.nameImage+"' class='show-picture' /><br/> Distance: "+distance+"</a></div></div>";
 
-                
-				//markersArray.push(marker);
-				//(function (marker, data) {
-				//	google.maps.event.addListener(marker, "click", function (e) {
-				//		var rutaImagen=data.path+"/"+data.name;
-				//		infoWindow.setContent("<div style = 'width:100px;min-height:40px'><a href=https://www.fotomapa.es/photos/show/"+data.text+"><b>"+data.type.substring(0,26)+"</b><br><img src="+rutaImagen+" width=100px alt="+rutaImagen+"></img><br>"+data.text.substring(0,50)+"<br>" + data.timeStamp + "</a></div>");
-				//		infoWindow.open(map, marker);
-				//	});
-				//})(marker, data);
 			}
         })
         .catch (error=>console.log(error));
+        
 }
 
 /*window.onload = function () {

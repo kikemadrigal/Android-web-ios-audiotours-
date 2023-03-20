@@ -38,16 +38,15 @@ class TourController extends BaseController{
     }
 
 
-    public function showUser($param = null){
-        $this->view->param=$param;
-        $this->view->render("tour/showUser");
-    }
+
     public function search($search = null){
-        $this->view->param=$search[0];
-        $this->view->render("tour/search");
-    }
-    public function searchUser($search = null){
-        $this->view->param=$search[0];
+        //$this->view->param=$search[0];
+        echo "vamos a ver el tour con el texto: ".$_POST['search'];
+        $name=$_POST['search'];
+        $tours=TourRepository::getAllByName($name);
+        $this->view->tours=$tours;
+        //if($tours==null || count($tours)==0)echo "no se obtvieron resultados";
+        //else echo "resultados ".count($tours);
         $this->view->render("tour/search");
     }
 
@@ -208,7 +207,7 @@ class TourController extends BaseController{
                 $fileOnServer=$path."/".$countTours."-".$nameOnServer;
                 $success=move_uploaded_file($_FILES['file']['tmp_name'], $fileOnServer);
                 $lastImageId=MediaRepository::insertImage($countTours."-".$nameOnServer, $path, $isHeader ,$date ,$typeId , $_SESSION['idusuario'], $tourId);
-            //Si no se ha subido ningún archivo le hacemos una copia de la imagen vacía
+                //Si no se ha subido ningún archivo le hacemos una copia de la imagen vacía
             } else{
 
                 
@@ -258,8 +257,12 @@ class TourController extends BaseController{
             //$renameAudio=rename($mediaAudio->getName()."/".$mediaAudio->getName(), $mediaAudio->getName()."/".$mediaAudio->getName()."-".$lastId);
             $successMediaAudioUpdate=MediaRepository::updateAudio($mediaAudio);
             if($lastId>0 && $successMediaAudioUpdate && $successMediaImageUpdate){
-                //if ( PRODUCTION==1 ) echo "<script type='text/javascript'>location.href='".PATHSERVER."Tour/showAll';</script>";       
-                //else header("location: ".PATHSERVER."Tour/showAll");
+                //Enciamos el restapi 
+                $idImage=$this->insertImageWordpress($mediaImage);
+                $urlBlog=$this->insertPostWordpress($tour,$idImage,$mediaAudio);
+                TourRepository::updateUrlBlog($urlBlog, $lastId);
+                if ( PRODUCTION==1 ) echo "<script type='text/javascript'>location.href='".PATHSERVER."Tour/showAll';</script>";       
+                else header("location: ".PATHSERVER."Tour/showAll");
             }else{
                echo "Insert could not be completed"; 
             }
@@ -292,15 +295,15 @@ class TourController extends BaseController{
             if (isset($_POST['submit']) && $_POST['id']!=1){
                 //echo "Se encontro el file en el servidor<br>";
                 $tour=new Tour($_POST['id']);
-                $tour->setName($_POST['name']);
+                $tour->setName(Util::eliminacaracteresEspeciales($_POST['name']));
                 $tour->setLatitude($_POST['latitude']);
                 $tour->setLongitude($_POST['longitude']);
-                $tour->setType($_POST['type']);
+                $tour->setType(Util::eliminacaracteresEspeciales($_POST['type']));
                 $tour->setBlogUrl($_POST['blogUrl']);
                 $tour->setAddress($_POST['address']);
                 $tour->setPhone($_POST['phone']);
                 $tour->setWeb($_POST['web']);
-                $tour->setDescription($_POST['description']);
+                $tour->setDescription(Util::eliminacaracteresEspeciales($_POST['description']));
                 $tour->setDate('');
                 $tour->setUserId($_SESSION['idusuario']);
                 $isHeader=0;
@@ -502,6 +505,64 @@ class TourController extends BaseController{
         }
     }
 
+// 'content' => "<audio src='".PATHSERVER.$mediaAudio->getPath."/".$mediaAudio->getName()."' style='width: 200px;' controls  ></img>".$tour->getDescription(),
+    function insertPostWordpress($tour,$idMediaImage,$mediaAudio){
+        $link="";
+        $json = json_encode([
+            'title' => $tour->getName(),
+            'content' => "<audio src='".PATHSERVERSININDEX.$mediaAudio->getPath()."/".$mediaAudio->getName()."' style='width: 200px;' controls  ></audio><br />".$tour->getDescription(),
+            'featured_media'=>$idMediaImage,
+            'status' => 'publish',
+        ]);
+        try {
+            $ch = curl_init(POINTISERTPOST);
+            curl_setopt($ch, CURLOPT_USERPWD, USERWP.':'.PASSWORDAPLICATIONWP);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
+            $result = curl_exec($ch);
+            $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            //print_r(json_decode($result));
+            $response=json_decode($result);
+            $link=$response->link;
+        } catch(Exception $e) {
+            echo $e->getMessage();
+        }
+        return $link;
+    }
+
+
+    function insertImageWordpress($media){
+        $id=0;
+        $json = json_encode([
+            'title' => $media->getName(),
+            'source_url' => $media->getPath()."/".$media->getName(),
+            'status' => 'publish',
+        ]);
+        try {
+            $ch = curl_init(POINTISERTMEDIA);
+            curl_setopt($ch, CURLOPT_USERPWD, USERWP.':'.PASSWORDAPLICATIONWP);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
+            $result = curl_exec($ch);
+            $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            //print_r(json_decode($result));
+            $response=json_decode($result);
+            $id=$response->id;
+        } catch(Exception $e) {
+            echo $e->getMessage();
+        }
+        return $id;
+    }
 
 
 

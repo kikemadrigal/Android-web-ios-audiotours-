@@ -1,43 +1,54 @@
+<?php include_once("./views/templates/document-start.php");?>
+<script src="<?php echo PATHJS; ?>search.js"></script>
+<br />
+
+
+
+<!--Esta fila es para mostrar la paginación-->
+<div class="row">
+    <div class="col-md-12">
+        <div id="divPagination"></div>
+    </div> 
+</div>
+<div class="row" >
 <?php
-include_once("./views/templates/document-start.php"); 
-?>
-<table class="table">
-  <thead>
-    <tr>
-      <th scope="col">id</th>
-      <th scope="col">Title</th>
-	  <th scope="col">GenId</th>
-      <th scope="col">Year</th>
-      <th scope="col">Publisher</th>
-      <th scope="col">Developer</th>
-      <th scope="col">System</th>
-    </tr>
-  </thead>
-<?php
-//Obtenemos los 10 últimos juegos
-//El text search lo obtenemos en el index
-$games=GameRepository::getSearchGameByTitle($search);
-if($games==NULL) die();
-	else{
-		foreach ($games as $posicion=>$game){
-			if ($game->getTitle()!=NULL){
-				echo "<tbody>";
-					echo "<tr>";
-						echo "<th scope='row'>".$game->getId()."</th>";
-						echo "<td><a href='".PATHSERVER."Game/show/".$game->getId()."'>".Util::cortarCadena($game->getTitle())."</a></td>";
-						echo "<td><a href='http://www.generation-msx.nl/msxdb/softwareinfo/".$game->getCover()."' target='_blanck'>".$game->getCover()."</a></td>";
-						echo "<td>".$game->getYear()."</td>";
-						echo "<td>".$game->getPublisher()."</td>";
-						echo "<td>".$game->getCountry()."</td>";
-						echo "<td>".$game->getFormat()."</td>";
-						echo "<td>".$game->getSystem()."</td>";
-					echo "</tr>";
-				echo "</tbody>";
-			}
-		}	
-	}	
-?>
-</table>
-<?php
-include_once("./views/templates/document-end.php"); 
-?>
+
+        foreach ($this->tours as $posicion=>$tour){
+			if ($tour->getId()!=NULL && $tour->getId()!=1){
+                $image=MediaRepository::getImage($tour->getImage());
+                $audio=MediaRepository::getAudio($tour->getMedia());
+                ?>
+                <div class="col-md-3 text-center" >
+                    <div class="card p-2" >
+                            <?php
+                            $audioFile="media/withoutAudio.mp3";
+                            $imageFile="media/withoutImage.png";
+                            if($audio!=null && $image!=null){
+                                if(PRODUCTION==1){
+                                    $audioFile=PATHSERVERSININDEX.$audio->getPath()."/".$audio->getName();
+                                    $imageFile=PATHSERVERSININDEX.$image->getPath()."/".$image->getName();
+                                    echo "<a href='".PATHSERVER."Tour/show/".$tour->getId()."'>";
+                                }
+                                else{
+                                    $audioFile=PATHSERVER.$audio->getPath()."/".$audio->getName();
+                                    $imageFile=PATHSERVER.$image->getPath()."/".$image->getName();
+                                    echo "<a href='".PATHSERVER."Tour/show/".$tour->getId()."'>"; 
+                                } 
+                            }
+                            echo "<img src=".$imageFile."  height='200px'  />";
+                            echo "<audio src='".$audioFile."' style='width: 200px;' controls  >Your browser does not support the <code>audio</code> element.</audio>";
+                            ?>
+             
+                            <h4><?php echo Util::cutText($tour->getName(),50); ?></h4>
+                            <input type='button' class='btn btn-outline-primary btn-sm' value='Go!'></nutton>                        </a>
+                    </div>   
+                </div>
+            <?php
+            }
+        }
+        ?>	
+</div>
+  
+
+
+<?php include_once("./views/templates/document-end.php");?>

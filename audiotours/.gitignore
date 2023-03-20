@@ -1,4 +1,3 @@
 app/config/env.php
-media/medias
-media/tours
-at
+media/medias/*.*
+media/tours/*.*

@@ -41,7 +41,7 @@ class Util{
     }
     
     /**
-     * Esta funciín es utilizada en views/mwsia/insert.php
+     * Esta funciín quita los espacios y carácteres raros para poder guardar los archivos con esos nombres y que no den
      */
     public static function formatearTexto($name) {
         $except = array('\\', '/', ':', '*', '?', '"', '<', '>', '|', '\'');
@@ -52,6 +52,11 @@ class Util{
     }
 
 
+    public static function eliminacaracteresEspeciales($name) {
+        $except = array('\\', "'", '"', '<', '>', '|', '\'');
+        $name=str_replace($except,'',$name);
+        return $name;
+    }
 
 
 }

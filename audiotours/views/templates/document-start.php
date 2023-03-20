@@ -84,7 +84,7 @@
 
 
                 <!--Busqyeda de tours -->     
-                <form class="d-flex my-auto" method=post action='<?php echo PATHSERVER; ?>tour/search' >
+                <form class="d-flex my-auto" method=post action='<?php echo PATHSERVER; ?>Tour/search' >
                     <input class="form-control " type="search" name="search" id="search" placeholder="Search" aria-label="Search" ></input>
                     <button class="btn btn-outline-success" type="submit" name="submit">Search</button>
                 </form>
